@@ -9,6 +9,7 @@ import string
 
 def get_nvim_config_path():
     """Retrieve Neovim's stdpath('config') directly from Neovim."""
+    output = ""
     try:
         result = subprocess.run(
             ["nvim", "--headless", "+echo stdpath('config')", "+qall"],
@@ -30,6 +31,7 @@ def get_nvim_config_path():
 
 def get_nvim_data_path():
     """Retrieve Neovim's stdpath('config') directly from Neovim."""
+    output = ""
     try:
         result = subprocess.run(
             ["nvim", "--headless", "+echo stdpath('data')", "+qall"],
@@ -56,7 +58,6 @@ def create_symlink(src_input, dst_input):
     # Check if the link or file already exists
     if link_name.exists():
         raise RuntimeError(f"⚠️ Skipping: {link_name} already exists.")
-        return
 
     try:
         os.symlink(src, link_name, src.is_dir())
@@ -129,7 +130,7 @@ def uncomment_config():
 
 
 def install_paq(paq_path):
-    """Create a symbolic link only if it doesn't exist."""
+    """Create parent directories if it doesn't exist."""
     paq_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Check if the link or file already exists
@@ -172,6 +173,7 @@ def install_paq(paq_path):
             if result.stdout.strip()
             else result.stderr.strip()
         )
+        print(output)
         print(f"✅ :PaqInstall done!")
     except Exception as e:
         print(f"❌ Failed to run :PaqInstall: {e}")
