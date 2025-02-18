@@ -1,6 +1,7 @@
 # Node.js dependencies (if using npm-based plugins)
 node_modules/
 package-lock.json
+package.json
 
 # Lock files
 yarn.lock
