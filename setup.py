@@ -7,7 +7,7 @@ import shutil
 def clear_screen():
     """Clear the terminal screen to ensure the menu appears at the top."""
     if os.name == "nt":
-        subprocess.run(["pwsh", "-NoProfile", "-Command", "Clear-Host"])
+        subprocess.run(["pwsh", "-Command", "Clear-Host"])
     else:
         print("\033c", end="")  # ANSI escape sequence for Unix-like systems
 
@@ -18,7 +18,7 @@ def check_powershell():
         print("\n🔎 Checking PowerShell7 environment...")
         print("=" * 40)
         print(
-            "⚠️ Please ensure you are running this script in PowerShell7(pwsh)."
+            "🚨 Please ensure you are running this script in PowerShell7(pwsh)."
         )
 
         choice = (
@@ -28,7 +28,7 @@ def check_powershell():
         )
         if choice == "y":
             print("\n🖥️ Launching PowerShell7...\n")
-            subprocess.run(["pwsh", "-NoProfile", "-NoExit"])
+            subprocess.run(["pwsh", "-NoExit"])
             sys.exit(0)
         else:
             print("✅ Continuing execution...\n")
@@ -110,50 +110,36 @@ def install_package_managers():
                 print(
                     f"💻> Set-ExecutionPolicy RemoteSigned -Scope CurrentUser"
                 )
-                subprocess.run(
-                    [
-                        "pwsh",
-                        "-NoProfile",
-                        "-Command",
-                        "Set-ExecutionPolicy RemoteSigned -Scope CurrentUser",
-                    ]
-                )
-                print("")
                 print(
                     f"💻> Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression"
                 )
                 subprocess.run(
                     [
                         "pwsh",
-                        "-NoProfile",
                         "-Command",
-                        "Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression",
+                        (
+                            "Set-ExecutionPolicy RemoteSigned -Scope CurrentUser;"
+                            "Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression"
+                        ),
                     ]
                 )
+                print("✅ Scoop insall script done!")
                 print("")
-                print("✅ Scoop installed successfully!")
-            else:
-                print(
-                    "⚠️ Package installation will require manual intervention."
-                )
-                input("🔹 Press Enter to continue...")
-                return
 
-        print(f"💻> scoop update")
-        subprocess.run(["pwsh", "-NoProfile", "-Command", "scoop update"])
-        print("")
-        print(f"💻> scoop update main")
-        subprocess.run(["pwsh", "-NoProfile", "-Command", "scoop update main"])
-        print("")
+        if shutil.which("scoop") is None:
+            print("❌ Scoop package manager not found.\n")
+            print("🚨 Package installation will require manual intervention.")
+            input("🔹 Press Enter to continue...")
+            return
+
+        print("✅ Updating Scoop...")
         print(f"💻> scoop bucket add extras")
-        subprocess.run(
-            ["pwsh", "-NoProfile", "-Command", "scoop bucket add extras"]
-        )
+        subprocess.run(["pwsh", "-Command", "scoop bucket add extras"])
         print("")
-        print(f"💻> scoop update extra")
-        subprocess.run(["pwsh", "-NoProfile", "-Command", "scoop update extra"])
+        print(f"💻> scoop update")
+        subprocess.run(["pwsh", "-Command", "scoop update"])
         print("")
-        print("✅ Scoop updated successfully!")
+        print("✅ Scoop update script done!")
 
     elif sys.platform.startswith("darwin"):
         # Check for Homebrew
@@ -177,19 +163,19 @@ def install_package_managers():
                     ]
                 )
                 print("")
-                print("✅ Homebrew installed successfully!")
-            else:
-                print(
-                    "⚠️ Package installation will require manual intervention."
-                )
-                input("🔹 Press Enter to continue...")
-                return
+                print("✅ Homebrew install script done!")
+        if shutil.which("brew") is None:
+            print("❌ brew package manager not found.")
+            print("🚨 Package installation will require manual intervention.")
+            input("🔹 Press Enter to continue...")
+            return
 
         brew = shutil.which("brew")
+        print("✅ Upgrading brew...")
         print(f"💻> brew upgrade")
         subprocess.run([brew, "upgrade"])
         print("")
-        print("✅ brew upgraded successfully!")
+        print("✅ brew upgrad script done!")
     else:
         print(
             "⚠️ This menu is for Windows/Mac users.\nPlease check your package manager installed (apt, yum, pacman, etc.)."
@@ -206,6 +192,7 @@ def install_prerequisites():
 
     missing_packages = [
         "neovim",
+        "gcc",
         "make",
         "git",
         "lazygit",
@@ -213,34 +200,41 @@ def install_prerequisites():
         "lua-language-server",
     ]
 
-    if sys.platform.startswith("win"):
-        missing_packages.append("gcc")
-        for package in missing_packages:
-            print(f"📦 Installing {package} via Scoop...")
-            print(f"💻> scoop install {package}")
-            subprocess.run(
-                ["pwsh", "-NoProfile", "-Command", f"scoop install {package}"]
-            )
-            print("")
+    for package in missing_packages:
+        package_cmd = package
+        if package == "neovim":
+            package_cmd = "nvim"
+        elif package == "ripgrep":
+            package_cmd = "rg"
 
-    elif sys.platform.startswith("darwin"):
-        brew = shutil.which("brew")
-        for package in missing_packages:
-            print(f"📦 Installing {package} via Homebrew...")
-            print(f"💻> brew install {package}")
-            subprocess.run([brew, "install", package])
-            print("")
+        if shutil.which(package_cmd):
+            print(f"✅ {package}")
+        else:
+            print(f"❌ {package}")
 
+            if sys.platform.startswith("win"):
+                print(f"📦 Installing {package} via Scoop...")
+                print(f"💻> scoop install {package}")
+                subprocess.run(["pwsh", "-Command", f"scoop install {package}"])
+                print("")
+            elif sys.platform.startswith("darwin"):
+                brew = shutil.which("brew")
+                print(f"📦 Installing {package} via Homebrew...")
+                print(f"💻> brew install {package}")
+                subprocess.run([brew, "install", package])
+                print("")
+            else:
+                print(f"🔧 Please install 📦{package}!")
+
+    if shutil.which("pyright"):
+        print(f"✅ pyright")
     else:
-        print("⚠️ Please install the following packages manually:")
-        print(f"   {', '.join(missing_packages)}")
+        print("\n📦 Installing Pyright for Python LSP...")
+        print(f"💻> pip install pyright")
+        subprocess.run(["pip", "install", "pyright"])
+        print("")
 
-    print("\n✅ Installing Pyright for Python LSP...")
-    print(f"💻> pip install pyright")
-    subprocess.run(["pip", "install", "pyright"])
-    print("")
-
-    print("\n✅ All prerequisites installation excuted!\n")
+    print("\n✅ All prerequisites checked!\n")
     input("🔹 Press Enter to continue...")
 
 
@@ -254,7 +248,6 @@ def install_neovim_plugins():
 def main():
     clear_screen()
     check_powershell()
-    clear_screen()
     check_python()
     input("🔹 Press Enter to continue...")
 
@@ -264,9 +257,9 @@ def main():
         print("🚀 Neovim Auto-Setup | Main Menu ")
         print("=" * 40)
         print("📌 Select an option:\n")
-        print("  [1] 🖋️  Install Nerd Font (Enhance terminal icons)")
+        print("  [1] 🖋️ Install Nerd Font (Enhance terminal icons)")
         print(
-            "  [2] ⚙️  Install Package Managers (Scoop/Homebrew for Windows/Mac users)"
+            "  [2] ⚙️ Install Package Managers (Scoop/Homebrew for Windows/Mac users)"
         )
         print("  [3] 🔧 Install Prerequisites (Compilers, tools, etc.)")
         print("  [4] 🔌 Install Neovim Plugins (Auto-setup plugins)")
@@ -298,7 +291,7 @@ def main():
             break
         else:
             print(
-                "⚠️ Invalid choice. Please enter a number between 1-4 and x.\n"
+                "🚨 Invalid choice. Please enter a number between 1-4 or x.\n"
             )
 
 
