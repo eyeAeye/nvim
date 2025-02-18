@@ -1,0 +1,16 @@
+name: nvim
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - ca-certificates
+  - openssl
+  - stylua
+  - fixjson
+  - pyright
+  - pre-commit
+  - pip
+  - pip:
+      - ansicolor>=0.3,<1.0
+      - chardet>=5.2,<6.0
+      - vim-vint>=0.3,<1.0
