@@ -3,10 +3,13 @@ import subprocess
 from pathlib import Path
 import sys
 import shutil
+import random
+import string
 
 
 def get_nvim_config_path():
     """Retrieve Neovim's stdpath('config') directly from Neovim."""
+    output = ""
     try:
         result = subprocess.run(
             ["nvim", "--headless", "+echo stdpath('config')", "+qall"],
@@ -19,18 +22,16 @@ def get_nvim_config_path():
             if result.stdout.strip()
             else result.stderr.strip()
         )
-        if Path(output).exists():
-            raise Exception(
-                f"stdpath('config'):{output} exists.\nRename it to {output}.backup"
-            )
+
         return Path(output)
     except Exception as e:
-        print(f"❌ config path from Neovim exists: {e}")
+        print(f"❌ Error in neovim execution: {output}, {e}")
         return None
 
 
 def get_nvim_data_path():
     """Retrieve Neovim's stdpath('config') directly from Neovim."""
+    output = ""
     try:
         result = subprocess.run(
             ["nvim", "--headless", "+echo stdpath('data')", "+qall"],
@@ -43,11 +44,10 @@ def get_nvim_data_path():
             if result.stdout.strip()
             else result.stderr.strip()
         )
-        if not Path(output).exists():
-            raise Exception(f"stdpath('data'):{output} does not exist.")
+
         return Path(output)
     except Exception as e:
-        print(f"❌ cannot find data path from Neovim: {e}")
+        print(f"❌ Error in neovim execution: {output}, {e}")
         return None
 
 
@@ -58,7 +58,6 @@ def create_symlink(src_input, dst_input):
     # Check if the link or file already exists
     if link_name.exists():
         raise RuntimeError(f"⚠️ Skipping: {link_name} already exists.")
-        return
 
     try:
         os.symlink(src, link_name, src.is_dir())
@@ -131,15 +130,16 @@ def uncomment_config():
 
 
 def install_paq(paq_path):
-    """Create a symbolic link only if it doesn't exist."""
+    """Create parent directories if it doesn't exist."""
     paq_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Check if the link or file already exists
     if paq_path.exists():
-        print(f"⚠️ Skipping: {paq_path} already exists.")
+        print(f"🚨 Skipping: {paq_path} already exists.")
         return
 
     try:
+        print(f"\n✅ Cloning Paq...")
         subprocess.run(
             [
                 "git",
@@ -155,6 +155,7 @@ def install_paq(paq_path):
         print(f"❌ Failed to install paq.nvim: {e}")
 
     try:
+        print(f"\n✅ :PaqInstall...")
         result = subprocess.run(
             [
                 "nvim",
@@ -172,7 +173,8 @@ def install_paq(paq_path):
             if result.stdout.strip()
             else result.stderr.strip()
         )
-        print(f"✅ :PaqInstall success!")
+        print(output)
+        print(f"✅ :PaqInstall done!")
     except Exception as e:
         print(f"❌ Failed to run :PaqInstall: {e}")
 
@@ -227,7 +229,7 @@ def make_jsregexp(target_directory):
             capture_output=True,
             text=True,
         )
-        print("✅ Command Output:\n", result.stdout)
+        print("✅ make:\n", result.stdout)
     except subprocess.CalledProcessError as e:
         print("❌ Error Occurred:\n", e.stderr)
         return None
@@ -236,28 +238,54 @@ def make_jsregexp(target_directory):
 
 def setup_plugin():
     nvim_config_path = get_nvim_config_path()
+    nvim_data_path = get_nvim_data_path()
 
     if not nvim_config_path:
         print(
             f"❌ Failed to get nvim config path from neovim!: {nvim_config_path}"
         )
         return
-    if nvim_config_path.exists():
-        print(
-            f"❌ nvim config already exists!: {nvim_config_path}\nRename it to {nvim_config_path}.backup"
-        )
-        return
-
-    nvim_data_path = get_nvim_data_path()
     if not nvim_data_path:
         print(f"❌ Failed to get nvim data path from neovim!: {nvim_data_path}")
         return
 
-    if (nvim_data_path / "site").exists():
+    print(f"✅ Found the following paths")
+    print(f"📂 config: {nvim_config_path}")
+    print(f"📂 data: {nvim_data_path}\n")
+    choice = input(
+        "👉 Do you want to proceed with these locations? (Y/n): "
+    ).strip()
+
+    if choice == "n":
         print(
-            f"❌ nvim data already exists!: {nvim_data_path}\nRename it to {nvim_data_path}.backup"
+            f"\n💡 If you get incorrect locations, run nvim to check it runs normally."
         )
         return
+
+    if nvim_config_path.exists() or (nvim_data_path / "site").exists():
+        print(f"🚨 nvim config already exists!\n")
+        choice = input("👉 Do you want to backup to proceed? (Y/n): ").strip()
+        if choice == "n":
+            print(f"🚨 Please delete/backup previous config before proceed.\n")
+            return
+
+        try:
+            random_suffix = "".join(random.choices(string.ascii_lowercase, k=4))
+            if nvim_config_path.exists():
+                old_dir = nvim_config_path
+                new_dir = old_dir.with_name(old_dir.name + "_" + random_suffix)
+                old_dir.rename(new_dir)
+                print(f"📂➡️📂 Renamed: '{old_dir}' → '{new_dir}'")
+
+            if (nvim_data_path / "site").exists():
+                old_dir = nvim_data_path
+                new_dir = old_dir.with_name(old_dir.name + "_" + random_suffix)
+                old_dir.rename(new_dir)
+                print(f"📂➡️📂 Renamed: '{old_dir}' → '{new_dir}'")
+            print("")
+        except Exception as e:
+            print(f"❌ Failed to backup previous configs!: {e}")
+            return
 
     # Define paths
     source_init = Path.cwd() / "nvim.init.lua"  # Current directory file
@@ -277,28 +305,27 @@ def setup_plugin():
     # Install paq package manager
     paq_path = nvim_data_path / "site" / "pack" / "paqs" / "start" / "paq-nvim"
 
-    print(f"✅ Disabling plugin configuration temporarily")
+    print(f"\n✅ Disabling plugin configuration temporarily")
     comment_config()
     try:
         install_paq(paq_path)
     except:
         return
 
-    print(f"✅ Enabling plugin configuration")
+    print(f"\n✅ Enabling plugin configuration")
     uncomment_config()
 
-    print(f"✅ Building jsregexp")
+    print(f"\n✅ Building jsregexp")
     if make_jsregexp(
         nvim_data_path / "site" / "pack" / "paqs" / "start" / "LuaSnip"
     ):
         print(f"✅ Built jsregexp!")
     else:
-        print(f"⚠️ Failed to build jsregexp")
+        print(f"🚨 Failed to build jsregexp")
 
-    print(f"✅👌 READY TO GO!")
+    print(f"\n✅👌 READY TO GO!")
 
-    print(f"💡 Don't forget to check \n\t:checkhealth in nvim!")
-    input("🔹 Press Enter to continue...")
+    print(f"💡 Don't forget to :checkhealth in nvim!")
 
 
 def main():

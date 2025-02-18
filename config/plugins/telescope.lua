@@ -50,8 +50,10 @@ require("telescope").setup({
 	},
 })
 
+-- TELESCOPE EXTENSIONS
 require("telescope").load_extension("fzf")
 require("telescope").load_extension("ui-select")
+require("telescope").load_extension("noice")
 
 -- KEY MAPPINGS
 local builtin = require("telescope.builtin")
