@@ -32,6 +32,7 @@ def check_powershell():
             sys.exit(0)
         else:
             print("✅ Continuing execution...\n")
+        input("🔹 Press Enter to continue...")
 
 
 def check_python():
@@ -97,14 +98,22 @@ def install_package_managers():
     print("=" * 40)
 
     if sys.platform.startswith("win"):
+        print("\n🚨 Scoop (pacakge manager) will be installed and updated.")
+        choice = input("👉 Do you want to proceed? (y/N): ").strip().lower()
+        if choice != "y":
+            print("\n🚨 Package installation will require manual intervention.")
+            input("🔹 Press Enter to continue...")
+            return
+
         # Check for Scoop
         if shutil.which("scoop") is None:
-            print("❌ Scoop package manager is not installed.")
-            choice = (
-                input("👉 Do you want to install Scoop? (y/N): ")
-                .strip()
-                .lower()
-            )
+            print("\n❌ Scoop package manager is not installed.")
+            # choice = (
+            #     input("👉 Do you want to install Scoop? (y/N): ")
+            #     .strip()
+            #     .lower()
+            # )
+            choice = "y"
             if choice == "y":
                 print("\n📥 Installing Scoop...")
                 print(
@@ -142,6 +151,13 @@ def install_package_managers():
         print("✅ Scoop update script done!")
 
     elif sys.platform.startswith("darwin"):
+        print("\n🚨 HomeBrew (pacakge manager) will be installed and updated.")
+        choice = input("👉 Do you want to proceed? (y/N): ").strip().lower()
+        if choice != "y":
+            print("\n🚨 Package installation will require manual intervention.")
+            input("🔹 Press Enter to continue...")
+            return
+
         # Check for Homebrew
         if shutil.which("brew") is None:
             print("❌ Homebrew is not installed.")
@@ -249,7 +265,6 @@ def main():
     clear_screen()
     check_powershell()
     # check_python()
-    input("🔹 Press Enter to continue...")
 
     while True:
         clear_screen()
