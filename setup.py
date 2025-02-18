@@ -58,7 +58,7 @@ def check_python():
                 print("")
             elif sys.platform.startswith("darwin"):
                 print("\n📥 Installing Python via Homebrew...\n")
-                subprocess.run(["brew", "install", "python"])
+                subprocess.run([brew, "install", "python"])
                 print("")
             else:
                 print("⚠️ Please install Python and pip manually.")
@@ -185,8 +185,9 @@ def install_package_managers():
                 input("🔹 Press Enter to continue...")
                 return
 
-        print(f"💻> brew upgrade'")
-        subprocess.run(["brew upgrade"])
+        brew = shutil.which("brew")
+        print(f"💻> brew upgrade")
+        subprocess.run([brew, "upgrade"])
         print("")
         print("✅ brew upgraded successfully!")
     else:
@@ -194,7 +195,7 @@ def install_package_managers():
             "⚠️ This menu is for Windows/Mac users.\nPlease check your package manager installed (apt, yum, pacman, etc.)."
         )
 
-    print("✅ Package manager check!\n")
+    print("✅ Package manager checked!\n")
     input("🔹 Press Enter to continue...")
 
 
@@ -205,7 +206,6 @@ def install_prerequisites():
 
     missing_packages = [
         "neovim",
-        "gcc",
         "make",
         "git",
         "lazygit",
@@ -214,6 +214,7 @@ def install_prerequisites():
     ]
 
     if sys.platform.startswith("win"):
+        missing_packages.append("gcc")
         for package in missing_packages:
             print(f"📦 Installing {package} via Scoop...")
             print(f"💻> scoop install {package}")
@@ -223,10 +224,11 @@ def install_prerequisites():
             print("")
 
     elif sys.platform.startswith("darwin"):
+        brew = shutil.which("brew")
         for package in missing_packages:
             print(f"📦 Installing {package} via Homebrew...")
             print(f"💻> brew install {package}")
-            subprocess.run(["brew", "install", package])
+            subprocess.run([brew, "install", package])
             print("")
 
     else:
@@ -262,9 +264,9 @@ def main():
         print("🚀 Neovim Auto-Setup | Main Menu ")
         print("=" * 40)
         print("📌 Select an option:\n")
-        print("  [1] 🖋️ Install Nerd Font (Enhance terminal icons)")
+        print("  [1] 🖋️  Install Nerd Font (Enhance terminal icons)")
         print(
-            "  [2] ⚙️ Install Package Managers (Scoop/Homebrew for Windows/Mac users)"
+            "  [2] ⚙️  Install Package Managers (Scoop/Homebrew for Windows/Mac users)"
         )
         print("  [3] 🔧 Install Prerequisites (Compilers, tools, etc.)")
         print("  [4] 🔌 Install Neovim Plugins (Auto-setup plugins)")
@@ -295,7 +297,9 @@ def main():
             print("\n👋 Exiting. Happy coding with Neovim! 🚀\n")
             break
         else:
-            print("⚠️ Invalid choice. Please enter a number between 1 and 5.\n")
+            print(
+                "⚠️ Invalid choice. Please enter a number between 1-4 and x.\n"
+            )
 
 
 if __name__ == "__main__":
