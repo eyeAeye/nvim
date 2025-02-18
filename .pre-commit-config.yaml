@@ -1,0 +1,37 @@
+repos:
+  # 1️⃣ Vimscript Linter (vint)
+  - repo: local
+    hooks:
+      - id: vint
+        name: Vim Linter (Vint)
+        entry: bash -c 'vint --style-problem --color "$@" || (echo "❌ Fix errors and re-commit!"; exit 1)' --
+        language: system  # Fix: `python` was incorrect, should be `system`
+        files: '(.*vimrc|.*\.vim)$'
+        exclude: ".*\\.plug.vim"
+
+  # 2️⃣ Lua Formatter (stylua)
+  - repo: local
+    hooks:
+      - id: stylua
+        name: Lua Formatter (Stylua)
+        entry: stylua
+        language: system
+        types: [lua]
+
+  # 3️⃣ JSON Formatter (fixjson)
+  - repo: local
+    hooks:
+      - id: fixjson
+        name: JSON Formatter
+        entry: npx fixjson
+        language: system
+        types: [json]
+
+  # 4️⃣ Python Formatter (black)
+  - repo: https://github.com/psf/black
+    rev: 25.1.0  # Use the latest version
+    hooks:
+      - id: black
+        language_version: python3
+        args: ["--quiet", "--line-length", "80"]
+        stages: [pre-commit]
