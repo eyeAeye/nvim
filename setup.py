@@ -248,7 +248,7 @@ def install_neovim_plugins():
 def main():
     clear_screen()
     check_powershell()
-    check_python()
+    # check_python()
     input("🔹 Press Enter to continue...")
 
     while True:
