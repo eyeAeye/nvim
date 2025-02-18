@@ -257,18 +257,12 @@ def main():
         print("🚀 Neovim Auto-Setup | Main Menu ")
         print("=" * 40)
         print("📌 Select an option:\n")
-        print(
-            "  [1] 🖊  Install Nerd Font (Enhance terminal icons)"
-        )  # Plain pen instead of 🖋️
+        print("  [1] 🖊  Install Nerd Font (Enhance terminal icons)")
         print(
             "  [2] 🛠  Install Package Managers (Scoop/Homebrew for Windows/Mac users)"
         )
-        print(
-            "  [3] 📦 Install Prerequisites (Compilers, tools, etc.)"
-        )  # Changed from 🔧 to 📦
-        print(
-            "  [4] 🧩 Install Neovim Plugins (Auto-setup plugins)"
-        )  # Removed variation selector from ⚡
+        print("  [3] 📦 Install Prerequisites (Compilers, tools, etc.)")
+        print("  [4] 🧩 Install Neovim Plugins (Auto-setup plugins)")
         print("  [x] ❌ Exit\n")
         print("-" * 40)
 
