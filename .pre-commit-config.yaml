@@ -1,5 +1,5 @@
 repos:
-  # 1️⃣ Vimscript Linter (vint)
+  # 1 Vimscript Linter (vint)
   - repo: local
     hooks:
       - id: vint
@@ -9,7 +9,7 @@ repos:
         files: '(.*vimrc|.*\.vim)$'
         exclude: ".*\\.plug.vim"
 
-  # 2️⃣ Lua Formatter (stylua)
+  # 2 Lua Formatter (stylua)
   - repo: local
     hooks:
       - id: stylua
@@ -18,7 +18,7 @@ repos:
         language: system
         types: [lua]
 
-  # 3️⃣ JSON Formatter (fixjson)
+  # 3 JSON Formatter (fixjson)
   - repo: local
     hooks:
       - id: fixjson
@@ -27,11 +27,16 @@ repos:
         language: system
         types: [json]
 
-  # 4️⃣ Python Formatter (black)
+  # 4 Python Code Sorter (isort)
+  - repo: https://github.com/pycqa/isort
+    rev: "6.0.0"  # Use the latest stable version
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]
+
+  # 5 Python Formatter (black)
   - repo: https://github.com/psf/black
-    rev: 25.1.0  # Use the latest version
+    rev: 25.1.0  # Use the latest version (check GitHub)
     hooks:
       - id: black
-        language_version: python3
         args: ["--quiet", "--line-length", "80"]
-        stages: [pre-commit]

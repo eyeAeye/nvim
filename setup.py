@@ -1,7 +1,7 @@
 import os
+import shutil
 import subprocess
 import sys
-import shutil
 
 
 def clear_screen():
@@ -59,7 +59,12 @@ def check_python():
                 print("")
             elif sys.platform.startswith("darwin"):
                 print("\n📥 Installing Python via Homebrew...\n")
-                subprocess.run([brew, "install", "python"])
+                brew = shutil.which("brew")
+                if brew:
+                    subprocess.run([brew, "install", "python"])
+                else:
+                    print("❌ Cannot find brew!\n")
+
                 print("")
             else:
                 print("⚠️ Please install Python and pip manually.")
@@ -180,18 +185,18 @@ def install_package_managers():
                 )
                 print("")
                 print("✅ Homebrew install script done!")
-        if shutil.which("brew") is None:
+        brew = shutil.which("brew")
+        if brew:
+            print("✅ Upgrading brew...")
+            print(f"💻> brew upgrade")
+            subprocess.run([brew, "upgrade"])
+            print("")
+            print("✅ brew upgrad script done!")
+        else:
             print("❌ brew package manager not found.")
             print("🚨 Package installation will require manual intervention.")
             input("🔹 Press Enter to continue...")
             return
-
-        brew = shutil.which("brew")
-        print("✅ Upgrading brew...")
-        print(f"💻> brew upgrade")
-        subprocess.run([brew, "upgrade"])
-        print("")
-        print("✅ brew upgrad script done!")
     else:
         print(
             "⚠️ This menu is for Windows/Mac users.\nPlease check your package manager installed (apt, yum, pacman, etc.)."
@@ -235,10 +240,14 @@ def install_prerequisites():
                 print("")
             elif sys.platform.startswith("darwin"):
                 brew = shutil.which("brew")
-                print(f"📦 Installing {package} via Homebrew...")
-                print(f"💻> brew install {package}")
-                subprocess.run([brew, "install", package])
-                print("")
+                if brew:
+                    print(f"📦 Installing {package} via Homebrew...")
+                    print(f"💻> brew install {package}")
+                    subprocess.run([brew, "install", package])
+                    print("")
+                else:
+                    print("❌ brew package manager not found.")
+
             else:
                 print(f"🔧 Please install 📦{package}!")
 

@@ -11,6 +11,7 @@ require("nvim-treesitter.configs").setup({
 		"bash",
 		"json",
 		"markdown",
+		"markdown_inline",
 		"query",
 		"regex",
 	}, -- Install parsers
