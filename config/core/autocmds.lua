@@ -1,17 +1,17 @@
 -- Create an augroup to avoid duplicate autocmds
 vim.api.nvim_create_augroup("RestorePosition", { clear = true })
 -- Return to last edit position when opening files
-vim.api.nvim_create_autocmd('BufReadPost', {
-    group = "RestorePosition",
-    pattern = '*',
-    callback = function()
-        local mark = vim.api.nvim_buf_get_mark(0, '"')
-        local lcount = vim.api.nvim_buf_line_count(0)
-        if mark[1] > 0 and mark[1] <= lcount then
-            vim.api.nvim_win_set_cursor(0, mark)
-            vim.cmd('normal! zv')
-        end
-    end,
+vim.api.nvim_create_autocmd("BufReadPost", {
+	group = "RestorePosition",
+	pattern = "*",
+	callback = function()
+		local mark = vim.api.nvim_buf_get_mark(0, '"')
+		local lcount = vim.api.nvim_buf_line_count(0)
+		if mark[1] > 0 and mark[1] <= lcount then
+			vim.api.nvim_win_set_cursor(0, mark)
+			vim.cmd("normal! zv")
+		end
+	end,
 })
 
 -- Turn on cursorline in normal mode

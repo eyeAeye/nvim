@@ -1,10 +1,10 @@
 import os
-import subprocess
-from pathlib import Path
-import sys
-import shutil
 import random
+import shutil
 import string
+import subprocess
+import sys
+from pathlib import Path
 
 
 def get_nvim_config_path():

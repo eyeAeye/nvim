@@ -41,5 +41,3 @@ vim.opt.autoindent = true -- Copy indentation from the previous line
 vim.opt.smartindent = true -- Auto-indent new lines in code
 vim.opt.list = true
 vim.opt.listchars = { tab = "▸ " } -- , trail = "·", space = "·" }
-
-

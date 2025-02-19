@@ -1,7 +1,7 @@
 import os
+import shutil
 import subprocess
 import sys
-import shutil
 
 
 def clear_screen():
